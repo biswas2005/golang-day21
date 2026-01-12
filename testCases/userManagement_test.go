@@ -1,3 +1,4 @@
+// Table-Driven test cases for CRUD operations in User Management
 package testCases
 
 import (
@@ -9,13 +10,16 @@ import (
 	"testing"
 )
 
+// Test_createUser() verifies the conditions for createUser Handler
 func Test_createUser(t *testing.T) {
 	tests := []struct {
 		name   string
 		body   string
 		status int
 	}{
+		//Todo's for the test case
 		{
+			//Happy Path: Valid user should be Accepted
 			name:   "Valid User",
 			body:   `{"name":"abc","email":"abc@gmail.com"}`,
 			status: http.StatusAccepted,
@@ -48,7 +52,7 @@ func Test_createUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
+			//Dummy request
 			req := httptest.NewRequest(http.MethodPost, "/users/", bytes.NewBufferString(tt.body))
 			w := httptest.NewRecorder()
 			createUser(w, req)
@@ -61,6 +65,7 @@ func Test_createUser(t *testing.T) {
 	}
 }
 
+// Test_getUser() verifies the condition for getUser Handler
 func Test_getUser(t *testing.T) {
 	users = []User{
 		{ID: 1, Name: "abc", Email: "abc@gmail.com"},
@@ -72,13 +77,16 @@ func Test_getUser(t *testing.T) {
 		wantStatus int
 		wantBody   string
 	}{
+		//Todo's for the test
 		{
+			//Happy Path: Validates the condition
 			name:       "Get all users",
 			query:      "",
 			wantStatus: http.StatusOK,
 			wantBody:   `[{"id":1,"name":"abc","email":"abc@gmail.com"}]`,
 		},
 		{
+			// Happy Path: Validates the condition for specific ID
 			name:       "Get user by id",
 			query:      "?id=1",
 			wantStatus: http.StatusOK,
@@ -119,6 +127,7 @@ func Test_getUser(t *testing.T) {
 	}
 }
 
+// Test_updateUser() verifies the condition for updateUser Handler
 func Test_updateUser(t *testing.T) {
 
 	users = []User{
@@ -131,6 +140,7 @@ func Test_updateUser(t *testing.T) {
 		wantStatus int
 		wantBody   string
 	}{
+		//Todo's for the test cases
 		{
 			name:       "Invalid Path",
 			url:        "/users/",
@@ -165,6 +175,7 @@ func Test_updateUser(t *testing.T) {
 			wantStatus: http.StatusNotFound,
 		},
 		{
+			//Happy Path:Validates the condition
 			name:       "Successful Update",
 			url:        "/users/1",
 			body:       `{"id":1,"name":"updated abc","email":"abcnew@gmail.com"}`,
@@ -196,6 +207,7 @@ func Test_updateUser(t *testing.T) {
 	}
 }
 
+// Test_deleteUser() verifies the condition for deleteUser Handler
 func Test_deleteUser(t *testing.T) {
 	users = []User{
 		{ID: 1, Name: "abc", Email: "abc@gmail.com"},
@@ -207,6 +219,7 @@ func Test_deleteUser(t *testing.T) {
 		wantStatus int
 		wantBody   string
 	}{
+		//Todo's for the test case
 		{
 			name:       "Invalid Path",
 			url:        "/users",
@@ -227,6 +240,7 @@ func Test_deleteUser(t *testing.T) {
 			wantStatus: http.StatusNotFound,
 		},
 		{
+			//Happy path:Validates the condition
 			name:       "Successful Delete",
 			url:        "/users/1",
 			body:       `{"id":1,"name":"abc","email":"abc@gmail.com"}`,

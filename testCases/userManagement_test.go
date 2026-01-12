@@ -118,3 +118,141 @@ func Test_getUser(t *testing.T) {
 		})
 	}
 }
+
+func Test_updateUser(t *testing.T) {
+
+	users = []User{
+		{ID: 1, Name: "abc", Email: "abc@gmail.com"},
+	}
+	tests := []struct {
+		name       string
+		url        string
+		body       string
+		wantStatus int
+		wantBody   string
+	}{
+		{
+			name:       "Invalid Path",
+			url:        "/users/",
+			body:       `{"id":1,"name":"new","email":"new@gmail.com"}`,
+			wantStatus: http.StatusBadRequest,
+		},
+		{
+			name:       "Invalid ID Format",
+			url:        "/users/abc",
+			body:       `{"id":1,"name":"new","email":"new@gmail.com"}`,
+			wantStatus: http.StatusBadRequest,
+			wantBody:   `{"Error":"Invalid ID"}`,
+		},
+		{
+			name:       "Invalid JSON body",
+			url:        "/users/1",
+			body:       `Invalid JSON`,
+			wantStatus: http.StatusBadRequest,
+			wantBody:   `{"Error":"Invalid Body"}`,
+		},
+		{
+			name:       "validation Fails-Invalid Name",
+			url:        "/users/1",
+			body:       `{"id":1,"name":"","email":"new@gmail.com"}`,
+			wantStatus: http.StatusBadRequest,
+			wantBody:   `{"Error":"Name cannot be empty."}`,
+		},
+		{
+			name:       "Invalid ID-range missing",
+			url:        "/users/99",
+			body:       `{"id":99,"name":"fgd","email":"fgd@gmail.com"}`,
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name:       "Successful Update",
+			url:        "/users/1",
+			body:       `{"id":1,"name":"updated abc","email":"abcnew@gmail.com"}`,
+			wantStatus: http.StatusOK,
+			wantBody:   `{"id":1,"name":"updated abc","email":"abcnew@gmail.com"}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPut, tt.url, bytes.NewBufferString(tt.body))
+			w := httptest.NewRecorder()
+
+			updateUser(w, req)
+			res := w.Result()
+			defer res.Body.Close()
+
+			if res.StatusCode != tt.wantStatus {
+				t.Errorf("Expected status %d, got status %d", tt.wantStatus, res.StatusCode)
+			}
+			if tt.wantBody != "" {
+				gotBody, _ := io.ReadAll(res.Body)
+				got := strings.TrimSpace(string(gotBody))
+				if got != tt.wantBody {
+					t.Errorf("Wanted body %s, got body %s", tt.wantBody, got)
+				}
+			}
+
+		})
+	}
+}
+
+func Test_deleteUser(t *testing.T) {
+	users = []User{
+		{ID: 1, Name: "abc", Email: "abc@gmail.com"},
+	}
+	tests := []struct {
+		name       string
+		url        string
+		body       string
+		wantStatus int
+		wantBody   string
+	}{
+		{
+			name:       "Invalid Path",
+			url:        "/users",
+			body:       `{"id":1,"name":"abc","email":"abc@gmail.com"}`,
+			wantStatus: http.StatusBadRequest,
+		},
+		{
+			name:       "Invalid ID Format",
+			url:        "/users/abc",
+			body:       `{"id":1,"name":"abc","email":"abc@gmail.com"}`,
+			wantStatus: http.StatusBadRequest,
+			wantBody:   `{"Error":"Invalid ID"}`,
+		},
+		{
+			name:       "User not Found",
+			url:        "/users/99",
+			body:       `{"id":1,"name":"abc","email":"abc@gmail.com"}`,
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name:       "Successful Delete",
+			url:        "/users/1",
+			body:       `{"id":1,"name":"abc","email":"abc@gmail.com"}`,
+			wantStatus: http.StatusOK,
+			wantBody:   `{"message":"user 1 deleted"}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodDelete, tt.url, nil)
+			w := httptest.NewRecorder()
+			deleteUser(w, req)
+
+			res := w.Result()
+			defer res.Body.Close()
+
+			if res.StatusCode != tt.wantStatus {
+				t.Errorf("Wanted status %d , Got status %d", tt.wantStatus, res.StatusCode)
+			}
+			if tt.wantBody != "" {
+				gotBody, _ := io.ReadAll(res.Body)
+				got := strings.TrimSpace(string(gotBody))
+				if got != tt.wantBody {
+					t.Errorf("Wanted body %s, Got body %s", tt.wantBody, got)
+				}
+			}
+		})
+	}
+}

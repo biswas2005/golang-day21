@@ -117,7 +117,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 		if user.ID == id {
 			users = append(users[:i], users[i+1:]...)
 			w.WriteHeader(http.StatusOK)
-			fmt.Fprintf(w, `{"message":"user %d deleted}`, id)
+			fmt.Fprintf(w, `{"message":"user %d deleted"}`, id)
 			return
 		}
 	}
